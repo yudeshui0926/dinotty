@@ -809,6 +809,18 @@ function updateHeight() {
   updateHeightRaf = requestAnimationFrame(applyHeight)
 }
 
+// iOS's native input accessory bar (prev/next arrows + Done/keyboard-down button)
+// renders above the system keyboard but is not consistently excluded from
+// visualViewport.height across iOS versions, so bottom-anchored UI positioned
+// at the raw keyboard offset can end up underneath it. 44 CSS px matches
+// Apple's standard toolbar/accessory-view height; third-party IME accessory
+// bars can differ, so this is a best-effort floor, not an exact measurement.
+const IOS_ACCESSORY_BAR_HEIGHT = 44
+const isIOSDevice =
+  typeof navigator !== 'undefined' &&
+  /iPad|iPhone|iPod/.test(navigator.userAgent) &&
+  !('MSStream' in window)
+
 // Viewport listener for system keyboard detection
 let naturalVH = 0
 let sysKbOpen = false
@@ -833,9 +845,11 @@ function onViewportChange() {
     if (!props.visible) {
       barRef.value.style.display = 'none'
     } else if (sysKbOpen && textInputFocused.value) {
-      // System keyboard open with our input focused: show bar, hide panels via v-show
+      // System keyboard open with our input focused: show bar, hide panels via v-show.
+      // Clear the native accessory bar too, or its Done/arrow row sits on top of ours.
+      const clearance = isIOSDevice ? IOS_ACCESSORY_BAR_HEIGHT : 0
       barRef.value.style.display = ''
-      barRef.value.style.bottom = `${Math.max(0, off)}px`
+      barRef.value.style.bottom = `${Math.max(0, off) + clearance}px`
     } else if (sysKbOpen) {
       barRef.value.style.display = 'none'
     } else {
