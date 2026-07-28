@@ -129,14 +129,24 @@ describe('MobileKeyboard configurable send threshold', () => {
     expect(send.mock.calls).toEqual([['x'.repeat(63)], ['\r']])
   })
 
-  it('scenario 3: sends text only above N', async () => {
+  it('scenario 3: still sends Enter above N — length does not change what Enter does', async () => {
     const send = vi.fn()
     const mounted = mountKeyboard(() => send)
 
     await enterText(mounted, 'x'.repeat(64))
+    await advance(50)
+
+    expect(send.mock.calls).toEqual([['x'.repeat(64)], ['\r']])
+  })
+
+  it('scenario 3b: multi-line input is sent as text only — its newlines are the Enter', async () => {
+    const send = vi.fn()
+    const mounted = mountKeyboard(() => send)
+
+    await enterText(mounted, 'first\nsecond')
     await advance(100)
 
-    expect(send.mock.calls).toEqual([['x'.repeat(64)]])
+    expect(send.mock.calls).toEqual([['first\nsecond']])
   })
 
   it('scenario 4: N=0 sends every non-empty payload as text only', async () => {

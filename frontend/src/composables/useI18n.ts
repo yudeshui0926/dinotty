@@ -342,7 +342,7 @@ const messages: Record<Locale, Record<string, string>> = {
     'settings.keyboard.feedback': 'Key Feedback',
     'settings.keyboard.quickSendThreshold': 'Quick send threshold',
     'settings.keyboard.quickSendThresholdHint':
-      'Single-line input at or below this length sends immediately. Longer input waits for a separate Enter; 0 always waits.',
+      'Enter submits single-line input immediately, whatever its length. Set to 0 to never submit automatically. Multi-line input always waits.',
     'settings.keyboard.sound': 'Click sound on key press',
     'settings.keyboard.guardMode.label': 'Keyboard guard',
     'settings.keyboard.guardMode.off': 'Off',
@@ -1123,7 +1123,7 @@ const messages: Record<Locale, Record<string, string>> = {
     'settings.keyboard.feedback': '按键反馈',
     'settings.keyboard.quickSendThreshold': '快捷发送阈值',
     'settings.keyboard.quickSendThresholdHint':
-      '单行输入不超过此长度时直接发送；更长的输入需再按一次回车。设为 0 时始终等待回车。',
+      '单行输入按回车直接发送，不限长度。设为 0 时不自动发送。多行输入始终等待回车。',
     'settings.keyboard.sound': '按键音效',
     'settings.keyboard.guardMode.label': '键盘防护',
     'settings.keyboard.guardMode.off': '关闭',

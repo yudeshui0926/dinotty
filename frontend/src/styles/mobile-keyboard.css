@@ -497,12 +497,16 @@
 }
 
 /* iOS renders its input accessory bar (prev/next arrows + Done) on top of the
-   page, over the bottom of this toolbar, hiding the buttons. Reserve room for
-   it as bottom padding rather than by shifting the bar up: the toolbar's own
-   background then fills the covered strip, instead of leaving a black gap when
-   the accessory bar is absent or shorter than assumed. 44px is Apple's
-   standard accessory-view height. */
-.mkb-ios .mkb-toolbar {
+   page, over the bottom of this toolbar, hiding the buttons. Whether the
+   accessory bar is counted in visualViewport varies by iOS version and by
+   Safari's chrome state — which is why the overlap comes and goes, and why it
+   shows up after a file picker has been open — so the page cannot measure it
+   and has to reserve the space. Reserve it as bottom padding rather than by
+   shifting the bar up: the toolbar's own background then fills the covered
+   strip instead of leaving a black gap. Scoped to an open system keyboard,
+   the only time the accessory bar exists. 44px is Apple's standard
+   accessory-view height. */
+.mkb-ios.mkb-syskb .mkb-toolbar {
   padding-bottom: 44px;
 }
 

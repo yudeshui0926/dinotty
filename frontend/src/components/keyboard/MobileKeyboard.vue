@@ -545,10 +545,13 @@ async function sendTextInput() {
     return
   }
 
-  const direct =
-    !text.includes('\n') &&
-    settings.quick_send_threshold > 0 &&
-    text.length <= settings.quick_send_threshold
+  // Enter submits regardless of length. The threshold used to cap this, so a
+  // long message silently landed in the terminal without its Enter and had to
+  // be submitted again from the shortcut keyboard — the length of what you
+  // typed is not a reason to change what the Enter key does. It still gates
+  // the feature as a whole (0 = never auto-submit) and multi-line text is
+  // still left alone, since its own newlines already act as Enter.
+  const direct = !text.includes('\n') && settings.quick_send_threshold > 0
   if (!direct) {
     send(text)
     clearSentText()
@@ -850,6 +853,10 @@ function onViewportChange() {
   // Set --kb-open: either system keyboard or custom keyboard is visible
   document.documentElement.style.setProperty('--kb-open', sysKbOpen || props.visible ? '1' : '0')
   if (barRef.value) {
+    // iOS only draws its input accessory bar over us while the system keyboard
+    // is up, so the space the toolbar reserves for it is tied to that state
+    // rather than being permanently baked into the toolbar's height.
+    barRef.value.classList.toggle('mkb-syskb', sysKbOpen)
     if (!props.visible) {
       barRef.value.style.display = 'none'
     } else if (sysKbOpen && textInputFocused.value) {
