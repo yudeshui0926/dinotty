@@ -1327,7 +1327,7 @@ export class TerminalInstance {
     const heightChanged = rows !== this._lastRows
     this._lastCols = cols
     this._lastRows = rows
-    if (heightChanged && !this.isMouseModeEnabled()) {
+    if (heightChanged && this._shouldPinAfterResize()) {
       this.xterm.scrollToBottom()
       this._writePinnedToBottom = true
     }
@@ -1388,7 +1388,7 @@ export class TerminalInstance {
     const heightChanged = rows !== this._lastRows
     this._lastCols = cols
     this._lastRows = rows
-    if (heightChanged && !this.isMouseModeEnabled()) {
+    if (heightChanged && this._shouldPinAfterResize()) {
       this.xterm.scrollToBottom()
       this._writePinnedToBottom = true
     }
@@ -1477,7 +1477,7 @@ export class TerminalInstance {
     const heightChanged = rows !== this._lastRows
     this._lastCols = cols
     this._lastRows = rows
-    if (heightChanged && !this.isMouseModeEnabled()) {
+    if (heightChanged && this._shouldPinAfterResize()) {
       this.xterm.scrollToBottom()
       this._writePinnedToBottom = true
     }
@@ -1495,6 +1495,22 @@ export class TerminalInstance {
     // — bails if already sent or if we're between replay_begin and replay_end.
     if (this._snapshotPending) {
       this._maybeSendSnapshotRequest()
+    }
+  }
+
+  // Whether a height change should re-pin the viewport to the bottom.
+  // Mouse tracking alone is the wrong signal: line-oriented TUIs that stay in
+  // the normal buffer (Claude Code, Codex) enable it purely to catch clicks,
+  // and skipping the re-pin there strands their bottom rows below the fold
+  // when the mobile keyboard opens and shrinks the terminal. Only the
+  // alternate buffer really owns its viewport — and it has no scrollback, so
+  // scrollToBottom() would be a no-op there anyway.
+  private _shouldPinAfterResize(): boolean {
+    if (!this.xterm) return false
+    try {
+      return this.xterm.buffer.active.type !== 'alternate'
+    } catch {
+      return !this.isMouseModeEnabled()
     }
   }
 
