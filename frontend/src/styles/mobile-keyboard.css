@@ -225,12 +225,16 @@
   width: 50%;
 }
 
-/* Swipe indicator dots */
+/* Swipe indicator dots. The whole strip is the swipe target for switching
+   keyboard pages, so the padding — not the 6px dots — is what the thumb
+   actually has to hit. Padding is weighted to the top so the strip grows
+   upward and the bar stays anchored to the bottom of the screen. */
 .mkb-swipe-dots {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 6px;
-  padding: 4px 0 3px;
+  padding: 18px 0 4px;
   touch-action: pan-y;
   cursor: grab;
 }
@@ -490,6 +494,16 @@
   overflow: hidden;
   background: var(--bg-surface);
   border-top: 1px solid var(--border);
+}
+
+/* iOS renders its input accessory bar (prev/next arrows + Done) on top of the
+   page, over the bottom of this toolbar, hiding the buttons. Reserve room for
+   it as bottom padding rather than by shifting the bar up: the toolbar's own
+   background then fills the covered strip, instead of leaving a black gap when
+   the accessory bar is absent or shorter than assumed. 44px is Apple's
+   standard accessory-view height. */
+.mkb-ios .mkb-toolbar {
+  padding-bottom: 44px;
 }
 
 .mkb-tool-btn {

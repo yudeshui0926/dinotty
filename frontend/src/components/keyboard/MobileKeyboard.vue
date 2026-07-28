@@ -1,5 +1,5 @@
 <template>
-  <div ref="barRef" id="mobile-kb" v-show="visible">
+  <div ref="barRef" id="mobile-kb" :class="{ 'mkb-ios': isIOSDevice }" v-show="visible">
     <!-- Default mode: suggestion bar on top -->
     <div class="mkb-kb-bar" v-show="kbMode === 'default'">
       <SuggestionBar
@@ -29,6 +29,7 @@
           enterkeyhint="send"
           rows="1"
           v-model="textInput"
+          @pointerdown="onTextInputPointerDown"
           @focus="onTextInputFocus"
           @blur="onTextInputBlur"
           @input="resizeTextInput"
@@ -463,6 +464,20 @@ const {
   mapActionFooterRow,
 } = useKeyboardLayout({ kbMode, settings })
 
+// The textarea is focused programmatically in several places (clearSentText,
+// onSuggestionEdit, mode switches). iOS — and a standalone home-screen PWA
+// especially — refuses to raise the keyboard for a focus that no user gesture
+// preceded. The field then stays activeElement showing only the native
+// accessory bar, so a later tap fires no focus event and the keyboard never
+// comes up. Re-focusing inside the tap's own gesture recovers it.
+function onTextInputPointerDown() {
+  if (!isIOSDevice) return
+  const el = textInputRef.value
+  if (!el || document.activeElement !== el) return
+  el.blur()
+  el.focus()
+}
+
 function onTextInputFocus() {
   if (blurTimer) {
     clearTimeout(blurTimer)
@@ -788,6 +803,11 @@ function deleteSelectedOrLogicalLine() {
 }
 
 let updateHeightRaf = 0
+const isIOSDevice =
+  typeof navigator !== 'undefined' &&
+  /iPad|iPhone|iPod/.test(navigator.userAgent) &&
+  !('MSStream' in window)
+
 function applyHeight() {
   if (!barRef.value) return
   const mainPanel = barRef.value.querySelector('#mkb-main-panel') as HTMLElement | null
