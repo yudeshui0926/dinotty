@@ -8,12 +8,14 @@
       <form @submit.prevent="onSubmit">
         <div class="setup-input-row">
           <input
+            ref="inputRef"
             v-model="token"
             type="password"
             class="login-input"
             :placeholder="t('setup.placeholder')"
             autocomplete="new-password"
-            autofocus
+            :autofocus="!isTouchDevice()"
+            @pointerdown="onInputPointerDown"
             @focus="error = ''"
           />
           <button
@@ -39,9 +41,23 @@ import { ref } from 'vue'
 import { validateToken, apiUrl, authFetch } from '../composables/apiBase'
 import { useI18n } from '../composables/useI18n'
 import { RefreshCw } from 'lucide-vue-next'
+import { isTouchDevice } from '../utils/terminalInput'
 
 const emit = defineEmits<{ (e: 'success'): void }>()
 const { t } = useI18n()
+
+const inputRef = ref<HTMLInputElement>()
+
+// Same iOS autofocus trap as LoginPage: the field ends up focused without a
+// user gesture, so the keyboard never opens and tapping it fires no focus
+// event. See LoginPage.vue for the full explanation.
+function onInputPointerDown() {
+  if (!isTouchDevice()) return
+  const el = inputRef.value
+  if (!el || document.activeElement !== el) return
+  el.blur()
+  el.focus()
+}
 
 const token = ref('')
 const error = ref('')

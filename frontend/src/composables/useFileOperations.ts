@@ -482,9 +482,16 @@ export function useFileOperations(opts: {
     if (dragCounter.value === 0) _workspaceDropHover = false
   }
   function onWorkspaceDrop(ev: DragEvent) {
+    resetDragState()
+    onDrop(ev)
+  }
+  // Tree folder rows stopPropagation() on drop so the workspace-level drop
+  // handler never runs, leaving dragCounter stuck above zero and the drop
+  // highlight permanently lit. Callers that intercept a drop must reset here.
+  function resetDragState() {
     dragCounter.value = 0
     _workspaceDropHover = false
-    onDrop(ev)
+    _hoveredDir = undefined
   }
 
   return {
@@ -511,6 +518,7 @@ export function useFileOperations(opts: {
     onWorkspaceDragEnter,
     onWorkspaceDragLeave,
     onWorkspaceDrop,
+    resetDragState,
     teardownWorkspaceDragDrop,
   }
 }

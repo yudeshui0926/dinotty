@@ -6,13 +6,15 @@
       <p class="login-subtitle">{{ t('login.subtitle') }}</p>
       <form @submit.prevent="onSubmit">
         <input
+          ref="inputRef"
           v-model="token"
           type="password"
           class="login-input"
           :placeholder="t('login.placeholder')"
           autocomplete="current-password"
-          autofocus
+          :autofocus="!isTouchDevice()"
           :disabled="retryIn > 0"
+          @pointerdown="onInputPointerDown"
           @focus="error = ''"
         />
         <button type="submit" class="login-btn" :disabled="loading || retryIn > 0">
@@ -28,9 +30,26 @@
 import { ref, onBeforeUnmount } from 'vue'
 import { validateToken } from '../composables/apiBase'
 import { useI18n } from '../composables/useI18n'
+import { isTouchDevice } from '../utils/terminalInput'
 
 const emit = defineEmits<{ (e: 'success'): void }>()
 const { t } = useI18n()
+
+const inputRef = ref<HTMLInputElement>()
+
+// iOS focuses an `autofocus` field on load but suppresses the keyboard
+// because no user gesture preceded it. The field then stays activeElement,
+// so tapping it fires no focus event and the keyboard never appears — the
+// caret and the native accessory bar show, but there is no way to type.
+// autofocus is dropped on touch devices; this re-focus inside the tap
+// gesture recovers any field that is already stuck in that state.
+function onInputPointerDown() {
+  if (!isTouchDevice()) return
+  const el = inputRef.value
+  if (!el || document.activeElement !== el) return
+  el.blur()
+  el.focus()
+}
 
 const token = ref('')
 const error = ref('')

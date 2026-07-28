@@ -802,6 +802,9 @@ function onToggle(rel: string) {
 // (Extracted to useInlineCreateRename composable)
 
 async function onUploadToDir(dir: string, ev: DragEvent) {
+  // The folder row stopped propagation, so onWorkspaceDrop never ran; clear
+  // the drag highlight here before any early return can skip it.
+  ops.resetDragState()
   if (isTauri()) return // handled by file-drop-paths listener
   const items = ev.dataTransfer?.items
   if (!items) return
