@@ -48,8 +48,8 @@
           type="button"
           class="tab-bar-icon-btn"
           :title="t('app.preview')"
-          @click="openPreview"
-          @touchend.prevent="openPreview"
+          @click="togglePreview"
+          @touchend.prevent="togglePreview"
         >
           <Monitor :size="16" />
         </button>
@@ -1006,6 +1006,19 @@ const isRemote = computed(() => {
 
 function reloadApp() {
   window.location.reload()
+}
+
+// The toolbar button toggles so a second press closes the panel, same as its
+// own X, instead of forcing users to aim at that small close target. The
+// command palette keeps calling openPreview() directly — it is labelled
+// "open", so closing on re-run would be surprising there.
+function togglePreview() {
+  const tabId = activePaneId.value
+  if (!tabId) return
+  const tab = tabs.value.find((t) => t.paneId === tabId)
+  if (!tab || tab.type !== 'terminal') return
+  if (tab.previewVisible) closePreview(tabId)
+  else openPreview()
 }
 
 function openPreview() {
