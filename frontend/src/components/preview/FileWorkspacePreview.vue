@@ -1,6 +1,6 @@
 <template>
   <div v-if="visible && embedded" class="file-workspace-embedded">
-    <input ref="ops.fileInputRef" type="file" multiple class="sr-only" @change="ops.onFilePick" />
+    <input :ref="ops.fileInputRef" type="file" multiple class="sr-only" @change="ops.onFilePick" />
     <div
       ref="fileWorkspaceBodyRef"
       class="file-workspace-body"
@@ -164,7 +164,7 @@
         </div>
         <button type="button" @click="close" title="Close">✕</button>
       </div>
-      <input ref="ops.fileInputRef" type="file" multiple class="sr-only" @change="ops.onFilePick" />
+      <input :ref="ops.fileInputRef" type="file" multiple class="sr-only" @change="ops.onFilePick" />
       <div
         ref="fileWorkspaceBodyRef"
         class="file-workspace-body"
